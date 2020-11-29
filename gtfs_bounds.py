@@ -27,7 +27,13 @@ def parse_args():
         allow_abbrev=False,
         description="""
             Find the lat/lon bounds of a GTFS file.
-            If OSM files are provided, create an output file which is a trimmed version of the input file.
+
+            If an OSM input file is provided, create an output file which is a
+            trimmed version of the input file.
+
+            Alternatively, OSM may be downloaded from the Overpass API
+            (https://wiki.openstreetmap.org/wiki/Overpass_API) and written to
+            an output file in OSM XML format.
         """)
 
     input_group = parser.add_mutually_exclusive_group()
@@ -67,11 +73,6 @@ def parse_args():
             parser.print_help()
             print ("\nERROR, output osm file '%s' exists and --force was not used." % args.osm_output)
             exit(1)
-
-    if args.osm_input and args.download_from_overpass:
-        parser.print_help()
-        print ("\nERROR, both options input osm file '%s' and download from overpass are specified, please choose only one or the other.")
-        exit(1)
 
     return args
 
