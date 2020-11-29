@@ -29,19 +29,28 @@ def parse_args():
             Find the lat/lon bounds of a GTFS file.
             If OSM files are provided, create an output file which is a trimmed version of the input file.
         """)
-    parser.add_argument('--buffer-degrees',
-            type=float,
-            help="Increase the bounds by a Buffer of this many degrees.")
 
-    parser.add_argument('-i', '--osm-input',
+    input_group = parser.add_mutually_exclusive_group()
+
+    input_group.add_argument('-i', '--osm-input',
             type=argparse.FileType(),
             help="Input OSM file, used by osmconvert.")
 
-    parser.add_argument('-o', '--osm-output', help="Output OSM file, will be overwritten.")
+    input_group.add_argument('-d', '--download-from-overpass',
+            action='store_true', 
+            help="Download OSM from Overpass API, and save to the OSM_OUTPUT file. Uses the wget program.")
+
+    parser.add_argument('-o',
+            '--osm-output', 
+            help="Output OSM file, will be overwritten.")
 
     parser.add_argument('--force',
             action='store_true', 
-            help="Force overwrite of output OSM file.")
+            help="Force overwrite of the OSM_OUTPUT file.")
+
+    parser.add_argument('--buffer-degrees',
+            type=float,
+            help="Increase the bounds by a Buffer of this many degrees.")
 
     parser.add_argument('gtfs_file', help="Input GTFS file.")
 
@@ -58,6 +67,11 @@ def parse_args():
             parser.print_help()
             print ("\nERROR, output osm file '%s' exists and --force was not used." % args.osm_output)
             exit(1)
+
+    if args.osm_input and args.download_from_overpass:
+        parser.print_help()
+        print ("\nERROR, both options input osm file '%s' and download from overpass are specified, please choose only one or the other.")
+        exit(1)
 
     return args
 
@@ -109,6 +123,12 @@ def main():
         # print('Running:', ' '.join(run_arguments), file=stderr)
         subprocess.run(run_arguments)
 
+    if args.osm_output and args.download_from_overpass:
+        url = 'https://overpass-api.de/api/map?bbox=%s,%s,%s,%s' % (min_lon,min_lat,max_lon,max_lat)
+        print('Downloading from the Overpass URL: %s' % url)
+        run_arguments = [ 'wget', url, '--compression=gzip', '-O', args.osm_output ]
+        subprocess.run(run_arguments)
+ 
 if __name__ == '__main__':
     main()
 
