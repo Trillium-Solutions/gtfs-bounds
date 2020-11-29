@@ -2,9 +2,10 @@
 
 Find the geographic bounds of a GTFS (https://gtfs.org) file.
 
-Optionally, run `osmconvert` (https://gitlab.com/osm-c-tools/osmctools) to
-create a trimmed version of an Open Street Map (https://openstreetmap.org/)
-file.
+Optionally, create an Open Street Map (https://openstreetmap.org/) file trimmed
+to the size of your GTFS.  Either by downloading from the Overpass API, or
+running `osmconvert` (https://gitlab.com/osm-c-tools/osmctools) with a larger
+input OSM file.
 
 ## Usage
 
