@@ -7,6 +7,9 @@ to the size of your GTFS.  Either by downloading from the Overpass API, or
 by running `osmconvert` (https://gitlab.com/osm-c-tools/osmctools) starting with a larger
 input OSM file.
 
+If multiple GTFS files are provided, find geographic bounds which would contain
+all the GTFS files.
+
 ## Usage
 
 ```
