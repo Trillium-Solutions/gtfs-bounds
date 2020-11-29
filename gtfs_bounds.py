@@ -58,14 +58,15 @@ def parse_args():
             type=float,
             help="Increase the bounds by a Buffer of this many degrees.")
 
-    parser.add_argument('gtfs_file', help="Input GTFS file.")
+    parser.add_argument('gtfs_file', nargs='*', help="Input GTFS file. Multiple files may be provided.")
 
     args = parser.parse_args()
-
-    if not zipfile.is_zipfile(args.gtfs_file):
-        parser.print_help()
-        print ("\nERROR, the GTFS file '%s' doesn't appear to be a zip archive." % args.gtfs_file, file=stderr)
-        exit(1)
+    
+    for g in args.gtfs_file:
+        if not zipfile.is_zipfile(g):
+            parser.print_help()
+            print ("\nERROR, the GTFS file '%s' doesn't appear to be a zip archive." % g, file=stderr)
+            exit(1)
 
     if args.osm_output:
         o = Path(args.osm_output)
@@ -83,21 +84,21 @@ def main():
     max_lon = -1000
     args = parse_args()
 
-    #print ('gtfsfile is: %s' % args.gtfs_file, file=stderr)
-    with zipfile.ZipFile(args.gtfs_file) as z:
-        #print ('z is: %s' % z, file=stderr)
-        stopsfile = TextIOWrapper(z.open('stops.txt'))
-        #print ('stops is: %s' % stopsfile, file=stderr)
-        stops = csv.DictReader(stopsfile)
+    for g in args.gtfs_file:
+        with zipfile.ZipFile(g) as z:
+            #print ('z is: %s' % z, file=stderr)
+            stopsfile = TextIOWrapper(z.open('stops.txt'))
+            #print ('stops is: %s' % stopsfile, file=stderr)
+            stops = csv.DictReader(stopsfile)
 
-        for stop in stops:
-            try:
-                min_lat = min(min_lat, float(stop['stop_lat']))
-                max_lat = max(max_lat, float(stop['stop_lat']))
-                min_lon = min(min_lon, float(stop['stop_lon']))
-                max_lon = max(max_lon, float(stop['stop_lon']))
-            except e:
-                pass
+            for stop in stops:
+                try:
+                    min_lat = min(min_lat, float(stop['stop_lat']))
+                    max_lat = max(max_lat, float(stop['stop_lat']))
+                    min_lon = min(min_lon, float(stop['stop_lon']))
+                    max_lon = max(max_lon, float(stop['stop_lon']))
+                except e:
+                    pass
 
     if 1000 in (min_lat, min_lon) or -1000 in (max_lat, max_lon):
         print('Sorry, bounds not found.')
